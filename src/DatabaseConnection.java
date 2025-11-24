@@ -68,7 +68,7 @@ public class DatabaseConnection {
 
     // --- Login User ---
     public static int loginUser(String username, String password) {
-        String sql = "SELECT user_id FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT id_user FROM users WHERE username = ? AND password = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
