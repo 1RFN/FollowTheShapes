@@ -62,7 +62,6 @@ public class Main extends JFrame {
 
 
     public static void main(String[] args) {
-        // Menjalankan GUI di Event Dispatch Thread (Best Practice Swing)
         SwingUtilities.invokeLater(() -> {
             new Main().setVisible(true);
         });
