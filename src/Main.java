@@ -59,7 +59,6 @@ public class Main extends JFrame {
     public LeaderboardPanel getLeaderboardPanel() { return leaderboardPanel; }
 
     public static void main(String[] args) {
-        // Menjalankan GUI di Event Dispatch Thread (Best Practice Swing)
         SwingUtilities.invokeLater(() -> {
             new Main().setVisible(true);
         });
