@@ -9,53 +9,38 @@ import javax.swing.*;
 
 public class GamePanel extends JPanel {
     private Main mainFrame;
-    private ArrayList<GameShape> shapes; // Polymorphism: List menampung berbagai bentuk
-    private ArrayList<Integer> sequence; // Urutan langkah game
-    private int currentStep = 0; // Langkah pemain saat ini
+    private ArrayList<GameShape> shapes;
+    private ArrayList<Integer> sequence;
+    private int currentStep = 0;
     private int score = 0;
     private boolean isPlayerTurn = false;
     private JLabel statusLabel;
 
-    // ... import dan variable sama seperti sebelumnya
-
     public GamePanel(Main mainFrame) {
         this.mainFrame = mainFrame;
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.DARK_GRAY);
+        this.setBackground(Theme.BG_MAIN); // Background Gelap
 
         shapes = new ArrayList<>();
         sequence = new ArrayList<>();
 
-        // --- INISIALISASI 4 BENTUK (POSISI GRID 2x2) ---
-        
-        int size = 100; // Ukuran bentuk
-        int gap = 20;   // Jarak antar bentuk
-        
-        // Titik tengah panel (perkiraan, bisa disesuaikan dengan layoutmu)
+        int size = 100;
+        int gap = 30;
         int centerX = 400; 
         int centerY = 300; 
-        
-        // Hitung posisi offset agar rapi di tengah
-        int startX = centerX - size - (gap / 2); // Sekitar koordinat 290
-        int startY = centerY - size - (gap / 2); // Sekitar koordinat 240
+        int startX = centerX - size - (gap / 2); 
+        int startY = centerY - size - (gap / 2); 
 
-        // 1. Kiri Atas: KOTAK (Square) - Merah
-        shapes.add(new SquareShape(startX, startY, size, new Color(220, 53, 69))); 
-        
-        // 2. Kanan Atas: LINGKARAN (Circle) - Biru
-        shapes.add(new CircleShape(startX + size + gap, startY, size, new Color(13, 110, 253))); 
-        
-        // 3. Kiri Bawah: SEGITIGA (Triangle) - Hijau
-        shapes.add(new TriangleShape(startX, startY + size + gap, size, new Color(25, 135, 84))); 
-        
-        // 4. Kanan Bawah: BELAH KETUPAT (Diamond) - Kuning
-        shapes.add(new DiamondShape(startX + size + gap, startY + size + gap, size, new Color(255, 193, 7)));
-
-        // --- AKHIR INISIALISASI ---
+        // Menggunakan Warna Tema Baru (Pastel)
+        shapes.add(new SquareShape(startX, startY, size, Theme.COLOR_RED)); 
+        shapes.add(new CircleShape(startX + size + gap, startY, size, Theme.COLOR_BLUE)); 
+        shapes.add(new TriangleShape(startX, startY + size + gap, size, Theme.COLOR_GREEN)); 
+        shapes.add(new DiamondShape(startX + size + gap, startY + size + gap, size, Theme.COLOR_YELLOW));
 
         statusLabel = new JLabel("Wait for pattern...", SwingConstants.CENTER);
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        statusLabel.setForeground(Color.WHITE);
+        statusLabel.setFont(Theme.FONT_SUBTITLE);
+        statusLabel.setForeground(Theme.TEXT_PRIMARY);
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(20,0,0,0));
         add(statusLabel, BorderLayout.NORTH);
 
         addMouseListener(new MouseAdapter() {
@@ -68,6 +53,7 @@ public class GamePanel extends JPanel {
         });
     }
 
+    // --- LOGIC GAME (TIDAK BERUBAH DARI SEBELUMNYA) ---
     public void startGame() {
         sequence.clear();
         score = 0;
@@ -80,73 +66,51 @@ public class GamePanel extends JPanel {
         currentStep = 0;
         statusLabel.setText("Watch carefully! Score: " + score);
         
-        // Tambah satu langkah acak ke sequence
         Random rand = new Random();
         sequence.add(rand.nextInt(shapes.size()));
 
-        // JALANKAN THREAD UNTUK ANIMASI (MODUL 4: THREAD)
         new Thread(() -> {
             try {
-                Thread.sleep(1000); // Jeda sebelum mulai
+                Thread.sleep(1000);
                 for (int index : sequence) {
                     GameShape shape = shapes.get(index);
-                    
-                    // Nyalakan shape
                     shape.setActive(true);
-                    repaint(); // Refresh GUI
-                    
-                    // Bunyi beep (opsional)
+                    repaint();
                     Toolkit.getDefaultToolkit().beep(); 
-                    
-                    Thread.sleep(600); // Durasi nyala
-                    
-                    // Matikan shape
+                    Thread.sleep(600);
                     shape.setActive(false);
                     repaint();
-                    
-                    Thread.sleep(300); // Jeda antar bentuk
+                    Thread.sleep(300);
                 }
-                
-                // Giliran pemain
                 isPlayerTurn = true;
                 SwingUtilities.invokeLater(() -> statusLabel.setText("Your Turn!"));
-                
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            } catch (InterruptedException e) { e.printStackTrace(); }
         }).start();
     }
 
     private void handlePlayerClick(int x, int y) {
         for (int i = 0; i < shapes.size(); i++) {
             if (shapes.get(i).isClicked(x, y)) {
-                // Cek apakah klik sesuai urutan sequence
                 if (i == sequence.get(currentStep)) {
-                    // Benar
-                    flashShape(shapes.get(i)); // Feedback visual instan
+                    flashShape(shapes.get(i));
                     currentStep++;
-                    
                     if (currentStep >= sequence.size()) {
-                        // Selesai satu ronde
                         score++;
                         isPlayerTurn = false;
                         statusLabel.setText("Correct!");
-                        // Jeda sedikit sebelum ronde berikutnya
                         new Thread(() -> {
                             try { Thread.sleep(1000); } catch(Exception ex){}
                             SwingUtilities.invokeLater(this::nextRound);
                         }).start();
                     }
                 } else {
-                    // Salah -> Game Over
                     gameOver();
                 }
-                return; // Keluar loop setelah klik terdeteksi
+                return;
             }
         }
     }
     
-    // Helper untuk flash shape sebentar saat diklik player
     private void flashShape(GameShape shape) {
         new Thread(() -> {
             shape.setActive(true);
@@ -160,27 +124,24 @@ public class GamePanel extends JPanel {
     private void gameOver() {
         isPlayerTurn = false;
         saveScore();
-        JOptionPane.showMessageDialog(this, "Game Over! Score: " + score);
-        mainFrame.showCard("Menu");
+        Popup.showGameOver(mainFrame, score); // Pakai Popup Keren
     }
 
     private void saveScore() {
         try {
             Connection conn = DatabaseConnection.getConnection();
-            String sql = "INSERT INTO leaderboard (user_id, score) VALUES (?, ?)";
+            String sql = "INSERT INTO leaderboard (id_user, score) VALUES (?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, mainFrame.getCurrentUserId());
             pstmt.setInt(2, score);
             pstmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // Menggambar semua bentuk
+        // Gambar background dengan shape
         for (GameShape shape : shapes) {
             shape.draw(g);
         }

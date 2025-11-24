@@ -7,6 +7,7 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
 
+    // Sesuaikan nama database jika perlu. Di kode sebelumnya: db_follow_the_shapes
     private static final String DB_URL = "jdbc:mysql://localhost:3306/db_follow_the_shapes";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
@@ -17,6 +18,7 @@ public class DatabaseConnection {
     public static Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
+                // Load driver MySQL (opsional untuk versi driver baru, tapi aman dipakai)
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
                 System.out.println("Berhasil terhubung ke Database!");
@@ -33,8 +35,9 @@ public class DatabaseConnection {
 
     // --- Inisialisasi tabel umum ---
     public static void initialize() {
+        // PERBAIKAN: Menggunakan 'id_user' (bukan user_id) agar sama dengan SQL Dump
         String createUsersTable = "CREATE TABLE IF NOT EXISTS users (" +
-                "user_id INT AUTO_INCREMENT PRIMARY KEY," +
+                "id_user INT AUTO_INCREMENT PRIMARY KEY," + 
                 "username VARCHAR(50) NOT NULL UNIQUE," +
                 "password VARCHAR(100) NOT NULL" +
                 ")";
@@ -57,7 +60,7 @@ public class DatabaseConnection {
             int rows = pstmt.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            if (e.getSQLState().startsWith("23")) {
+            if (e.getSQLState().startsWith("23")) { // Kode error duplicate entry
                 System.err.println("Username sudah digunakan!");
             } else {
                 e.printStackTrace();
@@ -68,6 +71,7 @@ public class DatabaseConnection {
 
     // --- Login User ---
     public static int loginUser(String username, String password) {
+        // Query sudah benar menggunakan id_user
         String sql = "SELECT id_user FROM users WHERE username = ? AND password = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -82,13 +86,5 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
         return -1; // gagal login
-    }
-
-    // --- Testing ---
-    public static void main(String[] args) {
-        initialize();
-        registerUser("nb_test", "12345");
-        int userId = loginUser("nb_test", "12345");
-        System.out.println("Login berhasil, user_id = " + userId);
     }
 }

@@ -1,8 +1,8 @@
 import java.awt.*;
 import java.sql.*;
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.*;
 
 public class LeaderboardPanel extends JPanel {
     private JTable table;
@@ -12,45 +12,49 @@ public class LeaderboardPanel extends JPanel {
     public LeaderboardPanel(Main mainFrame) {
         this.mainFrame = mainFrame;
         setLayout(new BorderLayout());
-        setBackground(Theme.BG_DARK);
+        setBackground(Theme.BG_MAIN);
+        setBorder(new EmptyBorder(30, 50, 30, 50));
 
-        // Header
-        JLabel title = new JLabel("TOP 10 LEADERBOARD", SwingConstants.CENTER);
-        title.setFont(Theme.FONT_HEADER);
-        title.setForeground(Theme.PRIMARY_YELLOW);
-        title.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        JLabel title = new JLabel("TOP PLAYERS", SwingConstants.CENTER);
+        title.setFont(Theme.FONT_TITLE);
+        title.setForeground(Theme.COLOR_YELLOW);
+        title.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
         add(title, BorderLayout.NORTH);
 
-        // Table Setup
         String[] columns = {"Rank", "Username", "Score", "Date"};
         model = new DefaultTableModel(columns, 0) {
-            @Override // Agar sel tidak bisa diedit
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         table = new JTable(model);
         table.setFont(Theme.FONT_BODY);
-        table.setRowHeight(30);
-        table.getTableHeader().setFont(Theme.FONT_BUTTON);
+        table.setRowHeight(40);
+        table.setShowVerticalLines(false);
+        table.setBackground(Theme.BG_SECONDARY);
+        table.setForeground(Theme.TEXT_PRIMARY);
         
-        // Custom Renderer untuk pewarnaan tabel
+        // Header Custom
+        JTableHeader header = table.getTableHeader();
+        header.setFont(Theme.FONT_BUTTON);
+        header.setBackground(Theme.BG_MAIN);
+        header.setForeground(Theme.COLOR_BLUE);
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Theme.COLOR_BLUE));
+        
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         table.setDefaultRenderer(Object.class, centerRenderer);
         
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(Theme.BG_MAIN);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
 
-        // Button Panel
         JPanel btnPanel = new JPanel();
-        btnPanel.setBackground(Theme.BG_DARK);
+        btnPanel.setBackground(Theme.BG_MAIN);
+        btnPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
         
-        JButton btnBack = new JButton("Back to Menu");
-        btnBack.setFont(Theme.FONT_BUTTON);
-        btnBack.setBackground(Theme.BUTTON_DISABLED);
-        btnBack.setForeground(Theme.TEXT_LIGHT);
+        ModernButton btnBack = new ModernButton("BACK TO MENU");
+        btnBack.setPreferredSize(new Dimension(200, 40));
         btnBack.addActionListener(e -> mainFrame.showCard("Menu"));
         
         btnPanel.add(btnBack);
@@ -61,31 +65,14 @@ public class LeaderboardPanel extends JPanel {
         model.setRowCount(0);
         try {
             Connection conn = DatabaseConnection.getConnection();
-
-            // PERBAIKAN QUERY:
-            // 1. Join menggunakan id_user (bukan user_id)
-            // 2. ORDER BY score DESC
-            // 3. LIMIT 10
-            String sql = "SELECT u.username, l.score, l.played_at " +
-                        "FROM leaderboard l " +
-                        "JOIN users u ON l.id_user = u.id_user " +
-                        "ORDER BY l.score DESC LIMIT 10";
-
+            String sql = "SELECT u.username, l.score, l.played_at FROM leaderboard l " +
+                         "JOIN users u ON l.id_user = u.id_user ORDER BY l.score DESC LIMIT 10";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
-
             int rank = 1;
             while (rs.next()) {
-                model.addRow(new Object[]{
-                    rank++,
-                    rs.getString("username"),
-                    rs.getInt("score"),
-                    rs.getString("played_at")
-                });
+                model.addRow(new Object[]{ rank++, rs.getString("username"), rs.getInt("score"), rs.getString("played_at") });
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Gagal mengambil data: " + e.getMessage());
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }

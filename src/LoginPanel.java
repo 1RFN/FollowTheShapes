@@ -3,119 +3,119 @@ import javax.swing.*;
 
 public class LoginPanel extends JPanel {
     private JTextField userField;
-    private JPasswordField passField; // Tambahan field password
+    private JPasswordField passField;
     private Main mainFrame;
 
     public LoginPanel(Main mainFrame) {
         this.mainFrame = mainFrame;
-        setLayout(new GridBagLayout());
-        setBackground(Theme.BG_DARK); // Menggunakan Theme.java
+        setLayout(new GridBagLayout()); // Posisi Tengah
+        setBackground(Theme.BG_MAIN);   
 
-        // --- UI COMPONENTS ---
-        JLabel titleLabel = new JLabel("FOLLOW THE SHAPES!");
-        titleLabel.setFont(Theme.FONT_HEADER);
-        titleLabel.setForeground(Theme.PRIMARY_YELLOW);
+        // --- KARTU LOGIN ---
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(Theme.BG_SECONDARY);
+        // Border membulat (hack visual) dengan padding
+        card.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50)); 
 
-        JLabel lblUser = new JLabel("Username:");
-        lblUser.setFont(Theme.FONT_BODY);
-        lblUser.setForeground(Theme.TEXT_LIGHT);
+        JLabel title = new JLabel("Follow The Shapes");
+        title.setFont(Theme.FONT_TITLE);
+        title.setForeground(Theme.TEXT_PRIMARY);
+        title.setAlignmentX(CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel("Please Login to Play");
+        subtitle.setFont(Theme.FONT_BODY);
+        subtitle.setForeground(Theme.TEXT_SECONDARY);
+        subtitle.setAlignmentX(CENTER_ALIGNMENT);
+
+        // Input Fields Custom
+        userField = createStyledTextField();
+        passField = createStyledPasswordField();
+
+        // Tombol Modern
+        ModernButton btnLogin = new ModernButton("LOGIN");
+        btnLogin.setMaximumSize(new Dimension(250, 45));
+        btnLogin.setAlignmentX(CENTER_ALIGNMENT);
+
+        ModernButton btnRegister = new ModernButton("REGISTER");
+        btnRegister.setMaximumSize(new Dimension(250, 45));
+        btnRegister.setAlignmentX(CENTER_ALIGNMENT);
         
-        userField = new JTextField(15);
-        userField.setFont(Theme.FONT_BODY);
+        // Space/Jarak
+        card.add(title);
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(30));
+        card.add(createLabel("Username"));
+        card.add(userField);
+        card.add(Box.createVerticalStrut(15));
+        card.add(createLabel("Password"));
+        card.add(passField);
+        card.add(Box.createVerticalStrut(30));
+        card.add(btnLogin);
+        card.add(Box.createVerticalStrut(10));
+        card.add(btnRegister);
 
-        JLabel lblPass = new JLabel("Password:");
-        lblPass.setFont(Theme.FONT_BODY);
-        lblPass.setForeground(Theme.TEXT_LIGHT);
+        add(card); // Masukkan kartu ke panel utama
 
-        passField = new JPasswordField(15);
-        passField.setFont(Theme.FONT_BODY);
-
-        JButton btnLogin = new JButton("LOGIN");
-        styleButton(btnLogin, Theme.PRIMARY_YELLOW, Theme.TEXT_DARK);
-
-        JButton btnRegister = new JButton("REGISTER");
-        styleButton(btnRegister, Theme.BUTTON_DISABLED, Theme.TEXT_LIGHT);
-
-        // --- ACTION LISTENERS ---
-        
-        // Logic Login
+        // --- LOGIC TOMBOL ---
         btnLogin.addActionListener(e -> {
-            String user = userField.getText().trim();
-            String pass = new String(passField.getPassword()).trim();
-
-            if (user.isEmpty() || pass.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Username & Password tidak boleh kosong!");
-                return;
-            }
-
-            // Panggil fungsi login dari DatabaseConnection
-            int userId = DatabaseConnection.loginUser(user, pass);
+            String u = userField.getText().trim();
+            String p = new String(passField.getPassword()).trim();
+            if(u.isEmpty() || p.isEmpty()) { Popup.show(this, "Oops!", "Data tidak boleh kosong!", true); return; }
             
-            if (userId != -1) {
-                // Login Berhasil
-                mainFrame.setCurrentUser(userId, user);
-                JOptionPane.showMessageDialog(this, "Welcome back, " + user + "!");
-                clearFields();
-                mainFrame.showCard("Menu"); // Pindah ke Menu Utama
+            int uid = DatabaseConnection.loginUser(u, p);
+            if(uid != -1) {
+                mainFrame.setCurrentUser(uid, u);
+                Popup.show(this, "Success", "Welcome back, " + u + "!", false);
+                userField.setText(""); passField.setText("");
+                mainFrame.showCard("Menu");
             } else {
-                JOptionPane.showMessageDialog(this, "Login Gagal! Cek username/password.");
+                Popup.show(this, "Failed", "Username/Password salah!", true);
             }
         });
 
-        // Logic Register
         btnRegister.addActionListener(e -> {
-            String user = userField.getText().trim();
-            String pass = new String(passField.getPassword()).trim();
-
-            if (user.isEmpty() || pass.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Isi username & password untuk mendaftar!");
-                return;
-            }
-
-            // Panggil fungsi register dari DatabaseConnection
-            boolean success = DatabaseConnection.registerUser(user, pass);
-            
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Registrasi Berhasil! Silakan Login.");
-            } else {
-                JOptionPane.showMessageDialog(this, "Registrasi Gagal! Username mungkin sudah ada.");
-            }
+             String u = userField.getText().trim();
+             String p = new String(passField.getPassword()).trim();
+             if(u.isEmpty() || p.isEmpty()) { Popup.show(this, "Info", "Isi username & password!", true); return; }
+             
+             if(DatabaseConnection.registerUser(u, p)) {
+                 Popup.show(this, "Success", "Akun berhasil dibuat! Silakan Login.", false);
+             } else {
+                 Popup.show(this, "Failed", "Username sudah terpakai.", true);
+             }
         });
-
-        // --- LAYOUT SETUP (GridBag) ---
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        add(titleLabel, gbc);
-
-        gbc.gridwidth = 1; gbc.gridy = 1;
-        add(lblUser, gbc);
-        gbc.gridx = 1;
-        add(userField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2;
-        add(lblPass, gbc);
-        gbc.gridx = 1;
-        add(passField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
-        add(btnLogin, gbc);
-        
-        gbc.gridy = 4;
-        add(btnRegister, gbc);
     }
 
-    private void styleButton(JButton btn, Color bg, Color text) {
-        btn.setFont(Theme.FONT_BUTTON);
-        btn.setBackground(bg);
-        btn.setForeground(text);
-        btn.setFocusPainted(false);
+    private JLabel createLabel(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(Theme.FONT_BODY);
+        l.setForeground(Theme.TEXT_SECONDARY);
+        l.setAlignmentX(CENTER_ALIGNMENT);
+        return l;
     }
 
-    private void clearFields() {
-        userField.setText("");
-        passField.setText("");
+    private JTextField createStyledTextField() {
+        JTextField f = new JTextField();
+        styleField(f);
+        return f;
+    }
+    
+    private JPasswordField createStyledPasswordField() {
+        JPasswordField f = new JPasswordField();
+        styleField(f);
+        return f;
+    }
+
+    private void styleField(JTextField f) {
+        f.setMaximumSize(new Dimension(250, 35));
+        f.setFont(Theme.FONT_BODY);
+        f.setBackground(Theme.BG_MAIN); // Input gelap
+        f.setForeground(Theme.TEXT_PRIMARY); // Teks putih
+        f.setCaretColor(Theme.BUTTON_COLOR);
+        f.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Theme.TEXT_SECONDARY, 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        f.setAlignmentX(CENTER_ALIGNMENT);
     }
 }
