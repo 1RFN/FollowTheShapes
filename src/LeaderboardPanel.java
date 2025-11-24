@@ -61,26 +61,26 @@ public class LeaderboardPanel extends JPanel {
         model.setRowCount(0);
         try {
             Connection conn = DatabaseConnection.getConnection();
-            
+
             // PERBAIKAN QUERY:
-            // 1. Join user_id dengan user_id (bukan id)
-            // 2. ORDER BY score DESC (tertinggi ke terendah)
-            // 3. LIMIT 10 (hanya 10 teratas)
-            String sql = "SELECT u.username, l.score, l.created_at " +
-                         "FROM leaderboard l " +
-                         "JOIN users u ON l.user_id = u.user_id " + // FIX: u.id -> u.user_id
-                         "ORDER BY l.score DESC LIMIT 10"; 
-                         
+            // 1. Join menggunakan id_user (bukan user_id)
+            // 2. ORDER BY score DESC
+            // 3. LIMIT 10
+            String sql = "SELECT u.username, l.score, l.played_at " +
+                        "FROM leaderboard l " +
+                        "JOIN users u ON l.id_user = u.id_user " +
+                        "ORDER BY l.score DESC LIMIT 10";
+
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
-            
+
             int rank = 1;
             while (rs.next()) {
                 model.addRow(new Object[]{
                     rank++,
                     rs.getString("username"),
                     rs.getInt("score"),
-                    rs.getString("created_at")
+                    rs.getString("played_at")
                 });
             }
         } catch (Exception e) {

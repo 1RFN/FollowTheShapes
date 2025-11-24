@@ -75,7 +75,7 @@ public class DatabaseConnection {
             pstmt.setString(2, password);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("user_id"); // return ID user
+                    return rs.getInt("id_user"); // return ID user
                 }
             }
         } catch (SQLException e) {
