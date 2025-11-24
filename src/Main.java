@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class Main extends JFrame {
     private CardLayout cardLayout;
@@ -57,6 +57,9 @@ public class Main extends JFrame {
     
     public GamePanel getGamePanel() { return gamePanel; }
     public LeaderboardPanel getLeaderboardPanel() { return leaderboardPanel; }
+    public LoginPanel getLoginPanel() {return loginPanel;
+}
+
 
     public static void main(String[] args) {
         // Menjalankan GUI di Event Dispatch Thread (Best Practice Swing)

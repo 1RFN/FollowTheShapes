@@ -118,4 +118,9 @@ public class LoginPanel extends JPanel {
             BorderFactory.createEmptyBorder(5, 10, 5, 10)));
         f.setAlignmentX(CENTER_ALIGNMENT);
     }
+    public void resetFields() {
+    userField.setText("");
+    passField.setText("");
+}
+
 }
