@@ -10,6 +10,7 @@ public class Main extends JFrame {
     private MainMenuPanel menuPanel;
     private GamePanel gamePanel;
     private LeaderboardPanel leaderboardPanel;
+    private ExitConfirmationPanel exitConfirmationPanel;
     
     // User Session
     private int currentUserId;
@@ -29,12 +30,14 @@ public class Main extends JFrame {
         menuPanel = new MainMenuPanel(this);
         gamePanel = new GamePanel(this);
         leaderboardPanel = new LeaderboardPanel(this);
+        exitConfirmationPanel = new ExitConfirmationPanel(this);
 
         // Add to CardLayout
         mainPanel.add(loginPanel, "Login");
         mainPanel.add(menuPanel, "Menu");
         mainPanel.add(gamePanel, "Game");
         mainPanel.add(leaderboardPanel, "Leaderboard");
+        mainPanel.add(exitConfirmationPanel, "ExitConfirmation");
 
         add(mainPanel);
         

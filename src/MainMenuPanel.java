@@ -32,34 +32,8 @@ public class MainMenuPanel extends JPanel {
         // Menambahkan Konfirmasi sebelum Exit
         
         btnExit.addActionListener(e -> {
-    String[] options = {"Login akun baru", "Exit"};
-    int choice = JOptionPane.showOptionDialog(
-        this,
-        "Apa kamu ingin login dengan akun baru atau keluar?",
-        "Konfirmasi",
-        JOptionPane.DEFAULT_OPTION,
-        JOptionPane.QUESTION_MESSAGE,
-        null,
-        options,
-        options[0]
-    );
-
-    if (choice == 0) { 
-        // Balik ke halaman Login
-        mainFrame.showCard("Login");
-
-        // Optional: reset user
-        mainFrame.setCurrentUser(-1, "");
-
-        // Optional: reset text field login
-        if (mainFrame.getLoginPanel() != null) {
-            mainFrame.getLoginPanel().resetFields();
-        }
-
-    } else if (choice == 1) { 
-        System.exit(0);
-    }
-});
+            mainFrame.showCard("ExitConfirmation");
+        });
 
 
         GridBagConstraints gbc = new GridBagConstraints();
