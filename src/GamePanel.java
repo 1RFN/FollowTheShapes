@@ -76,7 +76,7 @@ public class GamePanel extends JPanel {
                     GameShape shape = shapes.get(index);
                     shape.setActive(true);
                     repaint();
-                    Toolkit.getDefaultToolkit().beep(); 
+                    SoundManager.playSound(String.valueOf(index + 1));
                     Thread.sleep(600);
                     shape.setActive(false);
                     repaint();
@@ -92,6 +92,7 @@ public class GamePanel extends JPanel {
         for (int i = 0; i < shapes.size(); i++) {
             if (shapes.get(i).isClicked(x, y)) {
                 if (i == sequence.get(currentStep)) {
+                    SoundManager.playSound(String.valueOf(i + 1));
                     flashShape(shapes.get(i));
                     currentStep++;
                     if (currentStep >= sequence.size()) {
@@ -122,6 +123,8 @@ public class GamePanel extends JPanel {
     }
 
     private void gameOver() {
+        SoundManager.stopBackgroundMusic();
+        SoundManager.playSound("game-over");
         isPlayerTurn = false;
         saveScore();
         Popup.showGameOver(mainFrame, score); // Pakai Popup Keren

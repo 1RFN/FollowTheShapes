@@ -43,6 +43,11 @@ public class Main extends JFrame {
     }
 
     public void showCard(String cardName) {
+        if (cardName.equals("Menu")) {
+            SoundManager.playBackgroundMusic();
+        } else {
+            SoundManager.stopBackgroundMusic();
+        }
         cardLayout.show(mainPanel, cardName);
     }
 
@@ -62,6 +67,9 @@ public class Main extends JFrame {
 
 
     public static void main(String[] args) {
+        // Load all sounds at the beginning
+        SoundManager.loadSounds();
+        
         SwingUtilities.invokeLater(() -> {
             new Main().setVisible(true);
         });
