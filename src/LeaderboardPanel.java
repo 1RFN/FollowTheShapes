@@ -39,6 +39,8 @@ public class LeaderboardPanel extends JPanel {
         header.setBackground(Theme.BG_MAIN);
         header.setForeground(Theme.COLOR_BLUE);
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Theme.COLOR_BLUE));
+        header.setReorderingAllowed(false); // SOLUSI: Kolom tidak bisa digeser!
+        header.setResizingAllowed(false);   // Opsional: Kolom tidak bisa diubah ukurannya
         
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -63,16 +65,28 @@ public class LeaderboardPanel extends JPanel {
 
     public void refreshData() {
         model.setRowCount(0);
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            String sql = "SELECT u.username, l.score, l.played_at FROM leaderboard l " +
-                         "JOIN users u ON l.id_user = u.id_user ORDER BY l.score DESC LIMIT 10";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            int rank = 1;
-            while (rs.next()) {
-                model.addRow(new Object[]{ rank++, rs.getString("username"), rs.getInt("score"), rs.getString("played_at") });
+        // Menggunakan SwingWorker agar UI tidak freeze saat loading database
+        new SwingWorker<Void, Object[]>() {
+            @Override
+            protected Void doInBackground() {
+                try {
+                    Connection conn = DatabaseConnection.getConnection();
+                    String sql = "SELECT u.username, l.score, l.played_at FROM leaderboard l " +
+                                 "JOIN users u ON l.id_user = u.id_user ORDER BY l.score DESC LIMIT 10";
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(sql);
+                    int rank = 1;
+                    while (rs.next()) {
+                        publish(new Object[]{ rank++, rs.getString("username"), rs.getInt("score"), rs.getString("played_at") });
+                    }
+                } catch (Exception e) { e.printStackTrace(); }
+                return null;
             }
-        } catch (Exception e) { e.printStackTrace(); }
+
+            @Override
+            protected void process(java.util.List<Object[]> chunks) {
+                for (Object[] row : chunks) model.addRow(row);
+            }
+        }.execute();
     }
 }

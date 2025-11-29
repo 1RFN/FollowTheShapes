@@ -1,5 +1,6 @@
 import java.awt.*;
-class DiamondShape extends GameShape {
+
+public class DiamondShape extends GameShape {
     private Polygon shapePolygon;
 
     public DiamondShape(int x, int y, int size, Color color) {
@@ -7,8 +8,7 @@ class DiamondShape extends GameShape {
         createPolygon();
     }
 
-    // Membuat bentuk poligon berdasarkan koordinat x, y dan size
-    private void createPolygon() {
+    public void createPolygon() {
         int half = size / 2;
         int[] xPoints = {x + half, x + size, x + half, x};
         int[] yPoints = {y, y + half, y + size, y + half};
@@ -17,27 +17,39 @@ class DiamondShape extends GameShape {
 
     @Override
     public void draw(Graphics g) {
+        // Update bentuk (penting jika posisi berubah di mode Hard)
+        createPolygon(); 
+        
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // Logika warna saat menyala
-        g2.setColor(isActive ? color.brighter().brighter() : color);
-        g2.fillPolygon(shapePolygon);
-        
-        // Garis pinggir
-        g2.setColor(Color.BLACK);
-        g2.setStroke(new BasicStroke(3));
-        g2.drawPolygon(shapePolygon);
+        if (isActive) {
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(15));
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+            g2.drawPolygon(shapePolygon);
+            
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+            g2.setColor(Theme.COLOR_GLOW);
+            g2.fillPolygon(shapePolygon);
+            
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(4));
+            g2.drawPolygon(shapePolygon);
+        } else {
+            g2.setColor(color.darker().darker());
+            g2.fillPolygon(shapePolygon);
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(4));
+            g2.drawPolygon(shapePolygon);
+        }
     }
 
     @Override
     public boolean isClicked(int mouseX, int mouseY) {
-        // Menggunakan method bawaan Polygon untuk deteksi klik yang akurat
         return shapePolygon.contains(mouseX, mouseY);
     }
 
     @Override
-    public void highlight(Graphics2D g2) {
-        // Implementasi highlight jika diperlukan
-    }
+    public void highlight(Graphics2D g2) {}
 }

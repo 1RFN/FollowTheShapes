@@ -1,9 +1,9 @@
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import java.awt.*;
 
 public class Popup {
 
@@ -78,7 +78,7 @@ public class Popup {
         btnRetry.setPreferredSize(new Dimension(110, 40));
         btnRetry.addActionListener(e -> {
             dialog.dispose();
-            mainFrame.getGamePanel().startGame();
+            mainFrame.getGamePanel().prepareGame();
         });
 
         ModernButton btnMenu = new ModernButton("MENU");
