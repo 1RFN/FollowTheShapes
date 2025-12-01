@@ -37,12 +37,14 @@ public class Theme {
     // --- GAMBAR BACKGROUND (Opsional) ---
     public static Image imgMenu;
     public static Image imgGame;
+    public static Image imgLogin;
 
     public static void loadImages() {
         try {
             // Jika Anda punya gambar, simpan di folder assets/images/
             imgMenu = ImageIO.read(new File("assets/images/bg_menu.png"));
-            imgGame = ImageIO.read(new File("assets/images/bg_game.jpg"));
+            imgGame = ImageIO.read(new File("assets/images/bg_game.png"));
+            imgLogin = ImageIO.read(new File("assets/images/bg_login.png"));
         } catch (Exception e) {
             // Silent error: Jika gambar tidak ada, pakai warna background biasa
         }
