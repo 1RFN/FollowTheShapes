@@ -41,7 +41,7 @@ public class Theme {
     public static void loadImages() {
         try {
             // Jika Anda punya gambar, simpan di folder assets/images/
-            imgMenu = ImageIO.read(new File("assets/images/bg_menu.jpg"));
+            imgMenu = ImageIO.read(new File("assets/images/bg_menu.png"));
             imgGame = ImageIO.read(new File("assets/images/bg_game.jpg"));
         } catch (Exception e) {
             // Silent error: Jika gambar tidak ada, pakai warna background biasa
