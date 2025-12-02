@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 03 Des 2025 pada 00.26
+-- Waktu pembuatan: 03 Des 2025 pada 00.31
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -52,7 +52,6 @@ INSERT INTO `leaderboard` (`id_score`, `id_user`, `score`, `difficulty`, `played
 (10, 5, 1, 'Medium', '2025-11-24 14:48:40'),
 (11, 5, 6, 'Medium', '2025-11-24 14:49:41'),
 (12, 5, 2, 'Medium', '2025-11-24 15:41:40'),
-(13, 6, 0, 'Medium', '2025-11-24 15:42:10'),
 (14, 5, 0, 'Medium', '2025-11-24 15:58:33'),
 (15, 5, 2, 'Medium', '2025-11-27 03:19:50'),
 (16, 5, 12, 'Medium', '2025-12-01 02:46:29'),
@@ -87,10 +86,7 @@ INSERT INTO `users` (`id_user`, `username`, `password`, `created_at`) VALUES
 (2, 'player_jago', 'rahasia', '2025-11-23 02:33:34'),
 (3, 'hallo', '', '2025-11-24 04:07:33'),
 (4, 'Irfan', 'Irfan123', '2025-11-24 04:23:23'),
-(5, 'bagas', '11', '2025-11-24 14:47:07'),
-(6, 'bibi', '12', '2025-11-24 15:41:55'),
-(8, 'Walid', 'Walid123', '2025-12-02 22:52:49'),
-(9, 'Jaynudin', 'Jay12', '2025-12-02 23:22:22');
+(5, 'bagas', '11', '2025-11-24 14:47:07');
 
 --
 -- Indexes for dumped tables
