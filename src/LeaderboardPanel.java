@@ -89,4 +89,19 @@ public class LeaderboardPanel extends JPanel {
             }
         }.execute();
     }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (Theme.imgMenu != null) {
+            g.drawImage(Theme.imgMenu, 0, 0, getWidth(), getHeight(), this);
+            g.setColor(new Color(0, 0, 0, 100)); 
+            g.fillRect(0, 0, getWidth(), getHeight());
+        } else {
+            Graphics2D g2 = (Graphics2D) g;
+            GradientPaint gp = new GradientPaint(0, 0, Theme.BG_MAIN, 0, getHeight(), Theme.BG_SECONDARY);
+            g2.setPaint(gp);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
+    }
 }
