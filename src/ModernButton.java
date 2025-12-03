@@ -15,7 +15,6 @@ public class ModernButton extends JButton {
         setForeground(Theme.BUTTON_TEXT);
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // Animasi Hover
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -35,17 +34,14 @@ public class ModernButton extends JButton {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Ganti warna saat mouse masuk
         if (isHovered) {
             g2.setColor(Theme.BUTTON_HOVER);
         } else {
             g2.setColor(Theme.BUTTON_COLOR);
         }
 
-        // Gambar tombol bulat (Radius 30)
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
 
-        // Gambar Teks di tengah
         FontMetrics fm = g2.getFontMetrics();
         int x = (getWidth() - fm.stringWidth(getText())) / 2;
         int y = (getHeight() + fm.getAscent()) / 2 - 4;

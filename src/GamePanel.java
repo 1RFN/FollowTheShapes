@@ -12,12 +12,11 @@ public class GamePanel extends JPanel {
     private ArrayList<Integer> sequence;
     private int currentStep = 0;
     private int score = 0;
-    private int roundLevel = 1; // Penanda Level/Jumlah Bentuk
+    private int roundLevel = 1;
     
     private boolean isPlayerTurn = false;
     private boolean isGameRunning = false;
     
-    // UI Elements
     private JLabel statusLabel;
     private JLabel countdownLabel; 
     private JProgressBar timerBar; 
@@ -94,7 +93,7 @@ public class GamePanel extends JPanel {
         sequence.clear();
         score = 0;
         currentStep = 0;
-        roundLevel = 1; // Reset Level
+        roundLevel = 1;
         isGameRunning = false;
         isPlayerTurn = false;
         timerBar.setVisible(false);
@@ -149,25 +148,20 @@ public class GamePanel extends JPanel {
         }).start();
     }
 
-    // --- LOGIKA UTAMA RONDE ---
     private void nextRound() {
         isPlayerTurn = false;
         currentStep = 0;
         timerBar.setVisible(false);
         turnTimer.stop();
         
-        // 1. Reset Posisi (Agar player bisa lihat pola dengan jelas dulu)
         resetShapePositions();
 
-        // 2. GENERATE POLA
         Main.Difficulty diff = mainFrame.getDifficulty();
         
         if (diff == Main.Difficulty.EASY) {
-            // EASY: Pola bertambah (Akumulatif) seperti Simon Says Klasik
             int nextShape = random.nextInt(shapes.size());
             sequence.add(nextShape);
         } else {
-            // MEDIUM & HARD: Pola Selalu Baru & Acak tiap Ronde
             generateNewRandomSequence(roundLevel);
         }
         
@@ -177,7 +171,6 @@ public class GamePanel extends JPanel {
             try {
                 Thread.sleep(1000); 
                 
-                // Mainkan Pola
                 for (int index : sequence) {
                     GameShape shape = shapes.get(index);
                     shape.setActive(true);
@@ -189,7 +182,6 @@ public class GamePanel extends JPanel {
                     Thread.sleep(200);
                 }
                 
-                // Khusus HARD: Acak Posisi SETELAH pola selesai
                 if (diff.isShuffling) {
                     SwingUtilities.invokeLater(() -> statusLabel.setText("Shuffling Positions..."));
                     Thread.sleep(600); 
@@ -208,7 +200,6 @@ public class GamePanel extends JPanel {
         }).start();
     }
     
-    // Helper untuk membuat pola acak baru sepanjang 'length'
     private void generateNewRandomSequence(int length) {
         sequence.clear();
         for(int i = 0; i < length; i++) {
@@ -216,39 +207,28 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // --- LOGIKA WAKTU BARU ---
     private void startPlayerTimer() {
         Main.Difficulty diff = mainFrame.getDifficulty();
         if (diff == Main.Difficulty.EASY) return;
 
-        // Waktu Dasar per Item (Semakin sulit semakin sedikit waktu berpikir per item)
-        // Medium: 1000ms per item, Hard: 800ms per item
         int timePerItem = (diff == Main.Difficulty.MEDIUM) ? 1000 : 800;
-        
-        // Hitung Total Waktu Dasar
         int totalTime = sequence.size() * timePerItem;
         
-        // --- LOGIKA BONUS WAKTU BERTAHAP ---
         int bonusTime = 0;
         if (diff == Main.Difficulty.MEDIUM) {
-            // Tiap kelipatan 30 turn, tambah 2 detik buffer
             int milestonesPassed = roundLevel / 30;
             bonusTime = milestonesPassed * 2000; 
         } else if (diff == Main.Difficulty.HARD) {
-            // Tiap kelipatan 25 turn, tambah 1.5 detik buffer
             int milestonesPassed = roundLevel / 25;
             bonusTime = milestonesPassed * 1500;
         }
 
-        // Tampilkan notifikasi kecil jika baru saja melewati milestone
         if (bonusTime > 0 && (roundLevel % 25 == 0 || roundLevel % 30 == 0)) {
             statusLabel.setText("TIME EXTENDED! GO!");
         }
 
-        // Total Waktu = (Jumlah Item * Waktu/Item) + Bonus Milestone
         timeLeft = totalTime + bonusTime;
         
-        // Set Progress Bar
         timerBar.setMaximum(timeLeft);
         timerBar.setValue(timeLeft);
         timerBar.setVisible(true);
@@ -279,9 +259,8 @@ public class GamePanel extends JPanel {
                 if (i == sequence.get(currentStep)) {
                     currentStep++;
                     if (currentStep >= sequence.size()) {
-                        // RONDE SELESAI
                         score++;
-                        roundLevel++; // Naik level -> Pola makin panjang
+                        roundLevel++; 
                         
                         isPlayerTurn = false;
                         turnTimer.stop(); 
@@ -322,7 +301,7 @@ public class GamePanel extends JPanel {
         turnTimer.stop();
         SoundManager.stopBackgroundMusic();
         SoundManager.playSound("game-over");
-        saveScore();
+        saveScore(); // Simpan skor dan difficulty
         Popup.showGameOver(mainFrame, score);
     }
 
@@ -330,12 +309,21 @@ public class GamePanel extends JPanel {
         new Thread(() -> {
             try {
                 Connection conn = DatabaseConnection.getConnection();
-                String sql = "INSERT INTO leaderboard (id_user, score) VALUES (?, ?)";
+                String sql = "INSERT INTO leaderboard (id_user, score, difficulty) VALUES (?, ?, ?)";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setInt(1, mainFrame.getCurrentUserId());
                 pstmt.setInt(2, score);
+                
+                String diffStr = mainFrame.getDifficulty().toString(); 
+                String dbDiffValue = diffStr.charAt(0) + diffStr.substring(1).toLowerCase(); 
+                
+                pstmt.setString(3, dbDiffValue);
+                
                 pstmt.executeUpdate();
-            } catch (Exception e) { e.printStackTrace(); }
+                System.out.println("Score saved: " + score + " [" + dbDiffValue + "]");
+            } catch (Exception e) { 
+                e.printStackTrace(); 
+            }
         }).start();
     }
 

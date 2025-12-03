@@ -1,90 +1,114 @@
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 public class DifficultyPanel extends JPanel {
     private Main mainFrame;
 
     public DifficultyPanel(Main mainFrame) {
         this.mainFrame = mainFrame;
-        setLayout(new GridBagLayout()); // Gunakan GridBag agar posisi di tengah persis
+        setLayout(new GridBagLayout());
+        setOpaque(false);
 
-        // Panel Konten Transparan
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setOpaque(false);
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(new Color(20, 25, 40, 240));
         
-        // Judul
+        cardPanel.setBorder(new CompoundBorder(
+            new LineBorder(Theme.COLOR_BLUE, 2, true),
+            new EmptyBorder(40, 60, 40, 60)
+        ));
+
         JLabel title = new JLabel("SELECT DIFFICULTY");
         title.setFont(Theme.FONT_TITLE);
         title.setForeground(Theme.TEXT_PRIMARY);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // --- BUTTONS & DESCRIPTIONS ---
-        
-        // 1. EASY
-        ModernButton btnEasy = new ModernButton("EASY");
-        styleButton(btnEasy, Theme.COLOR_GREEN); // Warna Kuning Neon
+        ModernButton btnEasy = createColoredButton("EASY", Theme.COLOR_GREEN);
         btnEasy.addActionListener(e -> startGame(Main.Difficulty.EASY));
-        
-        JLabel lblEasy = createDesc("Relax Mode • Pattern Accumulates • No Timer");
+        JLabel lblEasy = createDesc("Relax Mode • Pattern Accumulates");
 
-        // 2. MEDIUM
-        ModernButton btnMedium = new ModernButton("MEDIUM");
-        styleButton(btnMedium, Theme.COLOR_BLUE); // Warna Biru Neon
+        ModernButton btnMedium = createColoredButton("MEDIUM", Theme.COLOR_BLUE);
         btnMedium.addActionListener(e -> startGame(Main.Difficulty.MEDIUM));
-        
-        JLabel lblMed = createDesc("New Pattern Every Round • Timer Active • Bonus Time @ Lvl 30");
+        JLabel lblMed = createDesc("Timer Active • New Pattern Every Round");
 
-        // 3. HARD
-        ModernButton btnHard = new ModernButton("HARD");
-        styleButton(btnHard, Theme.TEXT_INCORRECT); // Warna Merah Neon
+        ModernButton btnHard = createColoredButton("HARD", Theme.TEXT_INCORRECT);
         btnHard.addActionListener(e -> startGame(Main.Difficulty.HARD));
-        
-        JLabel lblHard = createDesc("Random Shuffle • Extreme Timer • Bonus Time @ Lvl 25");
+        JLabel lblHard = createDesc("Shuffle Mode • Extreme Speed");
 
-        // 4. BACK
         ModernButton btnBack = new ModernButton("BACK");
-        btnBack.setPreferredSize(new Dimension(150, 45));
-        btnBack.setForeground(Theme.TEXT_SECONDARY);
+        btnBack.setPreferredSize(new Dimension(120, 40)); 
+        btnBack.setForeground(Color.BLACK); 
         btnBack.addActionListener(e -> mainFrame.showCard("Menu"));
-        btnBack.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JPanel backPanel = new JPanel();
+        backPanel.setOpaque(false);
+        backPanel.add(btnBack);
+        backPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // --- MENYUSUN LAYOUT (SPACING RAPI) ---
-        contentPanel.add(title);
-        contentPanel.add(Box.createVerticalStrut(40));
+        cardPanel.add(title);
+        cardPanel.add(Box.createVerticalStrut(40));
         
-        addSection(contentPanel, btnEasy, lblEasy);
-        contentPanel.add(Box.createVerticalStrut(25));
+        addOptionGroup(cardPanel, btnEasy, lblEasy);
+        cardPanel.add(Box.createVerticalStrut(25));
         
-        addSection(contentPanel, btnMedium, lblMed);
-        contentPanel.add(Box.createVerticalStrut(25));
+        addOptionGroup(cardPanel, btnMedium, lblMed);
+        cardPanel.add(Box.createVerticalStrut(25));
         
-        addSection(contentPanel, btnHard, lblHard);
-        contentPanel.add(Box.createVerticalStrut(50));
+        addOptionGroup(cardPanel, btnHard, lblHard);
+        cardPanel.add(Box.createVerticalStrut(45));
         
-        contentPanel.add(btnBack);
+        cardPanel.add(backPanel);
 
-        add(contentPanel);
+        add(cardPanel);
     }
 
-    private void styleButton(ModernButton btn, Color color) {
-        btn.setPreferredSize(new Dimension(300, 55));
-        btn.setForeground(color);
+    private ModernButton createColoredButton(String text, Color baseColor) {
+        ModernButton btn = new ModernButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                if (getModel().isRollover()) {
+                    g2.setColor(baseColor.brighter());
+                } else {
+                    g2.setColor(baseColor);
+                }
+
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+
+                FontMetrics fm = g2.getFontMetrics();
+                int x = (getWidth() - fm.stringWidth(getText())) / 2;
+                int y = (getHeight() + fm.getAscent()) / 2 - 4;
+
+                g2.setColor(Color.BLACK); 
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+        };
+        return btn;
+    }
+
+    private void addOptionGroup(JPanel parent, ModernButton btn, JLabel desc) {
+        btn.setPreferredSize(new Dimension(300, 50));
+        btn.setMaximumSize(new Dimension(300, 50));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        desc.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        parent.add(btn);
+        parent.add(Box.createVerticalStrut(8));
+        parent.add(desc);
     }
 
     private JLabel createDesc(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 12)); // Font kecil minimalis
-        lbl.setForeground(Theme.TEXT_SECONDARY);
-        lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 13)); 
+        lbl.setForeground(new Color(230, 230, 230));
         return lbl;
-    }
-
-    private void addSection(JPanel panel, JComponent btn, JComponent desc) {
-        panel.add(btn);
-        panel.add(Box.createVerticalStrut(5)); // Jarak dikit antara tombol dan deskripsi
-        panel.add(desc);
     }
 
     private void startGame(Main.Difficulty diff) {
@@ -98,7 +122,7 @@ public class DifficultyPanel extends JPanel {
         super.paintComponent(g);
         if (Theme.imgMenu != null) {
             g.drawImage(Theme.imgMenu, 0, 0, getWidth(), getHeight(), this);
-            g.setColor(new Color(0, 0, 0, 150)); // Overlay gelap biar tulisan kebaca
+            g.setColor(new Color(0, 0, 0, 100)); 
             g.fillRect(0, 0, getWidth(), getHeight());
         } else {
             Graphics2D g2 = (Graphics2D) g;
