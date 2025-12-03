@@ -72,7 +72,7 @@ public class DatabaseConnection {
     // --- Login User ---
     public static int loginUser(String username, String password) {
         // Query sudah benar menggunakan id_user
-        String sql = "SELECT id_user FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT id_user FROM users WHERE username = ? AND BINARY password = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
