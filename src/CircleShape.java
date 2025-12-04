@@ -40,7 +40,4 @@ public class CircleShape extends GameShape {
         double distance = Math.sqrt(Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2));
         return distance <= size / 2;
     }
-    
-    @Override
-    public void highlight(Graphics2D g2) {}
 }

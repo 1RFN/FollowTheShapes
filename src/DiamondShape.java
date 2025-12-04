@@ -49,7 +49,4 @@ public class DiamondShape extends GameShape {
     public boolean isClicked(int mouseX, int mouseY) {
         return shapePolygon.contains(mouseX, mouseY);
     }
-
-    @Override
-    public void highlight(Graphics2D g2) {}
 }

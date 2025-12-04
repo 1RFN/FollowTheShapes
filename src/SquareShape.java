@@ -45,7 +45,4 @@ public class SquareShape extends GameShape {
     public boolean isClicked(int mouseX, int mouseY) {
         return mouseX >= x && mouseX <= x + size && mouseY >= y && mouseY <= y + size;
     }
-    
-    @Override
-    public void highlight(Graphics2D g2) {}
 }
