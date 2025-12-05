@@ -42,6 +42,4 @@ public class Theme {
             imgLogin = ImageIO.read(new File("assets/images/bg_login.png"));
         } catch (Exception e) {}
     }
-
-    private Theme() {}
 }
